@@ -1,0 +1,384 @@
+{% extends "layout/main.html" %}
+
+{% load static %} 
+
+{% block title %}{{ coin.name }}{% endblock %}
+
+{% block content %} 
+<div class="coin-header-block-min">
+	<img src="{{ coin.img_src }}" class="coin-header-icon-min"> 
+	<div class="coin-header-name-min">{{ coin.name }}</div>
+	<div class="coin-header-price coin-header-price-min">
+		 {{ coin_price.price}}
+		<div class="coin-header-price-change change-24h-{{ coin_price.change_24h_type }}">{{ coin_price.change_procent_24h }}%</div>
+	</div>
+	<div class="coin-header-button-block coin-header-button-block-min" >
+		<a href="information" class="coin-header-button coin-header-button-information">
+			Информация
+		</a>
+		<a  href="analytics" class="coin-header-button coin-header-button-analytics">
+			Аналитика
+		</a>
+		<a  href="news" class="coin-header-button coin-header-button-news">
+			Новости
+		</a>
+
+	</div>
+</div>
+<div class="coin-header-block">
+	<div class="coin-header-main-info">
+		<img src="{{ coin.img_src }}" class="coin-header-icon"> 
+		<div class="coin-header-label">
+			<div class="coin-header-name">
+				{{ coin.name }}
+			</div>
+			<div class="coin-header-pair">
+				{{ coin.pair }}
+			</div>
+			<div class="coin-header-price">
+				{{сurrency.icon}}{{ coin_price.price}}
+				<div class="coin-header-price-change change-24h-{{ coin_price.change_24h_type }}">{{ coin_price.change_procent_24h }}%</div>
+			</div>
+		</div>
+		
+	</div>
+	<div class="coin-header-additional-info">
+		<div class="coin-header-additional-info-block">
+			<div class="coin-header-additional-info-value">
+				{{сurrency.icon}}{{ coin_price.capitalization }}
+			</div>
+			<div class="coin-header-additional-info-label">
+				Капитализация
+			</div>
+		</div>
+		<div class="coin-header-additional-info-block">
+			<div class="coin-header-additional-info-value">
+				{{сurrency.icon}}{{ coin_price.volume_24h }}
+			</div>
+			<div class="coin-header-additional-info-label">
+				Объем за 24ч
+			</div>
+		</div>
+	</div>
+	<div class="coin-header-button-block">
+		<a href="information" class="coin-header-button coin-header-button-information">
+			Информация
+		</a>
+		<a  href="analytics" class="coin-header-button coin-header-button-analytics">
+			Аналитика
+		</a>
+		<a  href="news" class="coin-header-button coin-header-button-news">
+			Новости
+		</a>
+
+	</div>
+</div>
+
+<script type="text/javascript">
+	let top_menu = false;
+	$(window).scroll(function() {
+       if ($(window).scrollTop() > 100)  {      
+       		if(!top_menu){
+       			$(".coin-header-block-min").slideToggle(200);
+       			top_menu = true;
+       		}            
+      	}  
+      	else{
+      		if(top_menu){
+       			$(".coin-header-block-min").slideToggle(200);
+       			top_menu = false;
+       		} 
+      	}
+    });
+
+
+
+
+	//main.js
+	function partial(func, ...argsBound) {
+	  return function(...args) { // (*)
+	    return func.call(this, ...argsBound, ...args);
+	  }
+	}
+
+	class Chart_template{
+	    constructor(id_el,height) {
+	        this.el = document.getElementById(id_el);
+	        let create_div_chart = document.createElement('div');
+	        create_div_chart.className = "chart_template-chart";
+	        this.el.append(create_div_chart);
+	        this.div_chart = this.el.querySelector(".chart_template-chart");
+	        this.div_chart.insertAdjacentHTML("afterend","<div class='chart_template-footer'></div>");
+
+	        this.time_frame = "1_hour";
+	        //this.time_interval = "1m";
+	        this.height = height;
+	        this.option = {};
+
+	    }
+	    simple(data){
+	    	this.option = {
+	            xAxis: {
+	                type: 'time',
+	                boundaryGap: ['1%', '1%'],
+	                axisLine: {
+	                    show : true
+	                },
+	                splitLine: {
+	                    show: false
+	                },
+	                textStyle : {
+	                    borderWidth : "100%"
+	                }
+	            },
+	            textStyle : {
+	                color : "#d1d4dc"
+	            },
+	            yAxis: {
+	                type: 'value',
+	                max : 100,
+	                axisLine: {
+	                    show : true
+	                },
+	                splitLine: {
+	                    show: false
+	                }
+	            },
+	            tooltip: {
+	                trigger: 'axis',
+	                formatter: function (params) {
+	                  params = params[0];
+	                  var date = new Date(params.name);
+	                  return (
+	                    '<div class="chart-tooltip-value">'+params.value[1] + '</div>'+
+	                    '<div class="chart-tooltip-date">'+date.getDate() +
+	                    '.' +
+	                    (date.getMonth() + 1) +
+	                    '.' +
+	                    date.getFullYear()+'<div>'
+	                    
+	                  );
+	                },
+	                textStyle: {
+	                    color: "#FFF",
+	                },
+	                axisPointer: {
+	                  animation: false,
+	                  snap: false,
+	                  lineStyle: {
+	                    color: '#434651',
+	                    type: 'solid'
+	                  }
+	                },
+	                borderColor: '#434651',
+	                backgroundColor: '#1e222d',
+	                borderWidth: 1,
+	                
+	                
+	            },
+	            dataZoom: [
+	                {
+	                    id: 'dataZoomX',
+	                    type: 'inside',
+	                    xAxisIndex: [0],
+	                    filterMode: 'filter',
+	                    minValueSpan: 3600 * 24 * 1000 * 5//min size5 days
+	                },
+	                
+	            ],
+	            series: [
+	                {
+	                  data: data,
+	                  type: 'line',
+	                  lineStyle : {
+	                    color : '#2962ff'
+	                  },
+	                  symbol: 'none',
+	                  showSymbol: false
+	                }
+	            ]
+	        };
+
+	    }
+	    update_data(){
+	    	this.data_candlestick(this.coin,this.currency);
+	    	this.chart.setOption(this.option);
+	    }
+	    button_update_data(self){
+	    	self.time_frame = $(this).attr("time_frame");
+	    	self.update_data();
+	    }
+	    candlestick(){
+	    	this.option = {
+	    		grid:{
+	    			top: 10,
+	    			bottom: 30,
+	    			right: 0,
+	    			left: 50,
+	    		},
+	    		xAxis: {
+				    type: 'time',
+	                axisLine: {
+	                    show : true
+	                },
+	                splitLine: {
+	                    show: false
+	                },
+	                boundaryGap: ['1%', '1%'],
+	                textStyle : {
+	                    borderWidth : "100%"
+	                }
+					
+				},
+				textStyle : {
+	                color : "#d1d4dc"
+	            },
+	            yAxis: {
+	                type: 'value',
+	                axisLine: {
+	                    show : true
+	                },
+	                splitLine: {
+	                    show: false
+	                },
+	                scale: true,
+	                zlevel: 3
+	            },
+	            dataZoom: [
+	                {
+	                    
+	                    type: 'inside',
+	                    id: 'dataZoomX',
+	                    filterMode: 'filter',
+	                    xAxisIndex: [0],
+	                    minValueSpan: 3600 * 24 * 1000 * 5,
+					
+	                },
+	                
+	            ],
+				series: [{
+					type: 'candlestick',
+					itemStyle: {
+						color: '#26a69a',
+						color0: '#ef5350',
+						borderColor: '#26a69a',
+						borderColor0: '#ef5350',
+					}
+				}]
+	        }
+	        this.div_chart.insertAdjacentHTML("beforebegin","<div class='chart_template-yaxis' style='height: "+this.height+"px;'></div>");
+
+	        this.el.querySelector(".chart_template-footer").insertAdjacentHTML("beforeend",`
+	        <div class="chart_template-button">
+		      	<div class="button-select-params">
+					<div class="button-select-params-values button-select-params-values-backwards">
+
+						<div class="button-select-params-values-title">
+							Минуты
+						</div>
+						<a class="button-select-params-value button-select-params-value-min" time_frame="1_minute">1 минута</a>
+						<a class="button-select-params-value button-select-params-value-min" time_frame="5_minute">5 минут</a>
+						<a class="button-select-params-value button-select-params-value-min" time_frame="15_minute">15 минут</a>
+						<a class="button-select-params-value button-select-params-value-min" time_frame="30_minute">30 минут</a>
+						<div class="button-select-params-values-title">
+							Часы
+						</div>
+						<a class="button-select-params-value button-select-params-value-min" time_frame="1_hour">1 час</a>
+						<a class="button-select-params-value button-select-params-value-min" time_frame="2_hour">2 часа</a>
+						<a class="button-select-params-value button-select-params-value-min" time_frame="4_hour">4 часа</a>
+						<div class="button-select-params-values-title">
+							Дни
+						</div>
+						<a class="button-select-params-value button-select-params-value-min" time_frame="1_day">1 день</a>
+						<a class="button-select-params-value button-select-params-value-min" time_frame="7_day">7 дней</a>
+						<a class="button-select-params-value button-select-params-value-min" time_frame="30_day">30 дней</a>
+					</div>
+					<div class="button-select-params-title">
+						Time Frame
+					</div>
+				</div>
+			</div>`);
+
+	        $('.button-select-params-title').on('click', function() {
+			$(".button-select-params-title").not(this).removeClass("button-select-params-title-active");
+			$('.button-select-params-values').not($(this).parent().find('.button-select-params-values')).hide();
+
+			if($(this).parent().find('.button-select-params-values-backwards').slideToggle(300).length == 0){
+				$(this).parent().find('.button-select-params-values').slideToggle(300);
+			};
+
+			$(this).toggleClass("button-select-params-title-active");
+			});
+
+
+
+
+	        let updateData =  partial(this.button_update_data,this);
+
+	        $(".button-select-params-value").click(updateData);
+	        $(".button-select-params-value").click(function(){
+				//$(this).parent().slideToggle(300);
+				$(this).parent().slideUp(300);
+			});
+
+
+			
+	        
+			
+	    }
+
+	    data_candlestick(coin,currency){
+	    	this.coin = coin;
+	    	this.currency = currency;
+	    	
+			
+			let data = $.ajax({
+				type: "GET",
+				url: "/api/history/candlestick/"+coin+"/"+currency+"/?time_frame="+this.time_frame,
+				async: false
+			}).responseText;
+			data = JSON.parse(data);
+
+			let data_format = []
+			data.forEach(function(item, i, arr) {
+				let time = new Date(item.time * 1000);
+				let value = [time,item.open,item.close,item.low,item.high];
+				/*data_format.push({
+					value"name": time.toString(),
+					value"value" : [[time.getFullYear(), time.getMonth() + 1, time.getDate()].join('/'),value]
+				});*/
+				data_format.push(value);
+			});
+
+			console.log(this.option.series)
+			this.option.series[0].data = data_format;
+
+		}
+	    create(){	
+
+	    	//echarts.registerLocale(locale="RU", localeCfg=langRU);
+	    	echarts.registerLocale("RU", langRU);
+	       	this.chart = echarts.init(this.div_chart,null, {
+	            height: this.height,
+	            locale: 'RU'
+	        });
+
+	    	this.chart.setOption(this.option);
+	    	$("canvas[data-zr-dom-id$='zr_3']").css('zIndex',3);
+	    }
+	    /*
+	    get area() {
+	        return this.calcArea();
+	    }
+
+	    calcArea() {
+	        return this.height * this.width;
+	    }
+	    */
+	}
+</script>
+<div class="content-coin">
+{% block content-coin %} 
+{% endblock %}
+</div>
+{% endblock %} 

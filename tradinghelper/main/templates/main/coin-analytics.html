@@ -1,0 +1,324 @@
+{% extends "layout/coin.html" %}
+
+{% load static %} 
+
+{% block title %}{{ coin.name }}{% endblock %}
+
+{% block content-coin %}
+<script type="text/javascript">
+   $(".coin-header-button-analytics").addClass("coin-header-button-active");
+</script>
+
+<script type="text/javascript">
+
+	
+	function total_analytics_gauge(id_div,value){
+		div = document.getElementById(id_div);
+		gauge = echarts.init(div, null, {
+			renderer: 'canvas',
+			useDirtyRect: false,
+			width : 415,
+			height: 400
+		});
+
+		gauge_option = {
+		  series: [
+		    {
+		      type: 'gauge',
+		      startAngle: 180,
+		      endAngle: 0,
+		      min: -2,
+		      max: 2,
+		      splitNumber: 8,
+		      axisLine: {
+		        lineStyle: {
+		          width: 6,
+		          color: [
+		            [0.20, '#fe1500'],
+		            [0.40, '#fe8100'],
+		            [0.60, '#e4c702'],
+		            [0.80, '#7ff311'],
+		            [1, '#3e9f01']
+		          ]
+		        }
+		      },
+		      pointer: {
+		        length: '70%',
+		        width: 3,
+		        offsetCenter: [0, '0%'],
+		        itemStyle: {
+		          color: 'auto'
+		        }
+		      },
+		      axisTick: {
+		        length: 12,
+		        lineStyle: {
+		          color: 'auto',
+		          width: 2
+		        }
+		      },
+		      splitLine: {
+		        length: 20,
+		        lineStyle: {
+		          color: 'auto',
+		          width: 5
+		        }
+		      },
+		      axisLabel: {
+		        color: '#b2b5be',
+		        fontSize: 10,
+			    fontWeight: 700,
+		        distance: -105,
+		        formatter: function (value) {
+		          if (value === 1.5) {
+		            return '{active|АКТИВНО\nПОКУПАТЬ}';
+		          } else if (value === 1) {
+		            return '{not_active|ПОКУПАТЬ}';
+		          } else if (value === 0) {
+		            return '{neutral|НЕЙТРАЛЬНО}';
+		          } else if (value === -1) {
+		            return '{not_active|ПРОДАВАТЬ}';
+		          } else if (value === -1.5) {
+		            return '{active|АКТИВНО\nПРОДАВАТЬ}';
+		          }
+		          return '';
+		        },
+
+		        rich: {
+			        label: {
+			            align: 'center',
+			            color: '#b2b5be',
+				        fontSize: 10,
+					    fontWeight: 700,
+			        },
+			        active: {
+			        	align: 'center',
+			            color: '#b2b5be',
+				        fontSize: 10,
+					    fontWeight: 700,
+						padding: [4, 0]
+			        },
+			        not_active: {
+			        	align: 'center',
+			            color: '#b2b5be',
+				        fontSize: 10,
+					    fontWeight: 700,
+						padding: [60, 5, 10, 5]
+			        },
+			        neutral: {
+			        	align: 'center',
+			            color: '#b2b5be',
+				        fontSize: 10,
+					    fontWeight: 700,
+						padding: [50, 5, 10, 5]
+			        }
+			  	}
+		      },
+		      
+		      title: {
+		        offsetCenter: [0, '-20%'],
+		        fontSize: 30
+		      },
+		      detail: {
+		        fontSize: 24,
+		        offsetCenter: [0, 45],
+		        
+		        formatter: function (value) {
+		          if (value === 2) {
+		            return 'АКТИВНО\nПОКУПАТЬ';
+		          } else if (value === 1) {
+		            return 'ПОКУПАТЬ';
+		          } else if (value === 0) {
+		            return 'НЕЙТРАЛЬНО';
+		          } else if (value === -1) {
+		            return 'ПРОДАВАТЬ';
+		          } else if (value === -2) {
+		            return 'АКТИВНО\nПРОДАВАТЬ';
+		          }
+		          return '';
+		        },
+		        color: 'auto'
+		      },
+		      data: [
+		        {
+		          value: value,
+		          //name: 'Grade Rating'
+		        }
+		      ]
+		    }
+		  ]
+		};
+
+		if (gauge_option && typeof gauge_option === 'object') {
+		  gauge.setOption(gauge_option);
+		}
+
+		window.addEventListener('resize', gauge.resize);
+	}
+	
+</script>
+<div class="coin-blocks-analytics">
+
+	<div class="coin-block-analytics">
+		<div class="coin-block-label">
+			ТЕХНИЧЕСКИЙ АНАЛИЗ {{ coin.pair }}
+		</div>
+		<div class="coin-block-table">
+			<div id="coin-gauge_total" class="coin-signal-gauge" style="margin-bottom: -150px"></div>
+			<script type="text/javascript">total_analytics_gauge("coin-gauge_total",{{total_analysis.info.1}});</script>
+			<div class="coin-signal-count-panel" style="top: 35px">
+				<div class="coin-signal-counter">
+					<div class="coin-signal-counter-value color-sell">
+						{{ total_analysis.value.0 }}
+					</div>	
+					<div class="coin-signal-counter-label">
+						Продавать
+					</div>		
+				</div>
+				<div class="coin-signal-counter">
+					<div class="coin-signal-counter-value color-neutral">
+						{{ total_analysis.value.1 }}
+					</div>	
+					<div class="coin-signal-counter-label">
+						Нейтрально
+					</div>	
+				</div>
+				<div class="coin-signal-counter">
+					<div class="coin-signal-counter-value color-buy">
+						{{ total_analysis.value.2 }}
+					</div>	
+					<div class="coin-signal-counter-label">
+						Покупать
+					</div>	
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="coin-block-analytics coin-block-analytics-select">
+		<div class="coin-block-window">
+			<h2>Сводный технический анализ {{ coin.name }}</h2>
+			<p>Здесь вы найдете обзор технического анализа для выбранного вами временного интервала. Анализ {{ coin.name }} основан на самых популярных технических индикаторах, таких как Скользящие средние и Осцилляторы.</p>
+		</div>
+	
+		<ul class="select-button">
+			<a href="?time_frame=1_minute"><li class="select-button-choose" time_frame="_1_minute"> 1 Минута
+			</li></a><a href="?time_frame=5_minute"><li class="select-button-choose" time_frame="_5_minute"> 5 Минут
+			</li></a><a href="?time_frame=15_minute"><li class="select-button-choose" time_frame="_15_minute"> 15 Минут
+			</li></a><a href="?time_frame=30_minute"><li class="select-button-choose" time_frame="_30_minute"> 30 Минут
+			</li></a><a href="?time_frame=1_hour"><li class="select-button-choose" time_frame="_1_hour"> 1 Час
+			</li></a><a href="?time_frame=2_hour"><li class="select-button-choose" time_frame="_2_hour"> 2 Часа
+			</li></a><a href="?time_frame=4_hour"><li class="select-button-choose" time_frame="_4_hour"> 4 Часа
+			</li></a><a href="?time_frame=1_day"><li class="select-button-choose" time_frame="_1_day"> 1 День
+			</li></a><a href="?time_frame=7_day"><li class="select-button-choose" time_frame="_7_day"> 1 Неделя
+			</li></a><a href="?time_frame=30_day"><li class="select-button-choose" time_frame="_30_day"> 1 Месяц
+		</li></a></ul>
+	</div>
+</div>
+<script type="text/javascript">
+	$( "[time_frame$='_{{time_frame}}']" ).addClass('select-button-choose-active');
+</script>
+
+<div class="coin-blocks-analytics">
+	<div class="coin-block-analytics">
+		<div class="coin-block-label">
+			ОСЦИЛЛЯТОРЫ
+		</div>
+		<div class="coin-block-table">
+			<div id="coin-gauge_oscillators" class="coin-signal-gauge" ></div>
+			<script type="text/javascript">total_analytics_gauge("coin-gauge_oscillators",{{total_analysis_oscillators.info.1}});</script>
+			<div class="coin-signal-count-panel">
+				<div class="coin-signal-counter">
+					<div class="coin-signal-counter-value color-sell">
+						{{ total_analysis_oscillators.value.0 }}
+					</div>	
+					<div class="coin-signal-counter-label">
+						Продавать
+					</div>		
+				</div>
+				<div class="coin-signal-counter">
+					<div class="coin-signal-counter-value color-neutral">
+						{{ total_analysis_oscillators.value.1 }}
+					</div>	
+					<div class="coin-signal-counter-label">
+						Нейтрально
+					</div>	
+				</div>
+				<div class="coin-signal-counter">
+					<div class="coin-signal-counter-value color-buy">
+						{{ total_analysis_oscillators.value.2 }}
+					</div>	
+					<div class="coin-signal-counter-label">
+						Покупать
+					</div>	
+				</div>
+			</div>
+			<table>
+				<tr>
+					<th>Название</th>
+					<th>Значение</th>
+					<th>Сигнал</th>
+				</tr>
+				{% for key, value in data_analysis_oscillators.items %}
+					<tr>
+						<td>{{ value.0 }}</td>
+						<td>{{ value.1 }}</td>
+						<td class="color-{{ value.3 }}">{{ value.2 }}</td>
+					</tr>
+				{% endfor %}
+
+			</table>
+		</div>
+	</div>
+	<div class="coin-block-analytics">
+		<div class="coin-block-label">
+			СКОЛЬЗЯЩИЕ СРЕДНИЕ
+		</div>
+		<div class="coin-block-table">
+			<div id="coin-gauge_MA" class="coin-signal-gauge" ></div>
+			<script type="text/javascript">total_analytics_gauge("coin-gauge_MA",{{total_analysis_MA.info.1}});</script>
+			<div class="coin-signal-count-panel">
+				<div class="coin-signal-counter">
+					<div class="coin-signal-counter-value color-sell">
+						{{ total_analysis_MA.value.0 }}
+					</div>
+					<div class="coin-signal-counter-label">
+						Продавать
+					</div>
+				</div>
+				<div class="coin-signal-counter">
+					<div class="coin-signal-counter-value color-neutral">
+						{{ total_analysis_MA.value.1 }}
+					</div>
+					<div class="coin-signal-counter-label">
+						Нейтрально
+					</div>
+				</div>
+				<div class="coin-signal-counter">
+					<div class="coin-signal-counter-value color-buy">
+						{{ total_analysis_MA.value.2 }}
+					</div>
+					<div class="coin-signal-counter-label">
+						Покупать
+					</div>
+				</div>
+			</div>
+			<table>
+				<tr>
+					<th>Название</th>
+					<th>Значение</th>
+					<th>Сигнал</th>
+				</tr>
+				{% for key, value in data_analysis_MA.items %}
+					<tr>
+						<td>{{ value.0 }}</td>
+						<td>{{ value.1 }}</td>
+						<td class="color-{{ value.3 }}">{{ value.2 }}</td>
+					</tr>
+				{% endfor %}
+
+			</table>
+	</div>
+	</div>
+</div>
+{% endblock %}

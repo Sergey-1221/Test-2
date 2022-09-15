@@ -1,0 +1,379 @@
+{% extends "layout/main.html" %}
+
+{% load static %} 
+
+{% block title %}Тепловая карта криптовалют{% endblock %}
+
+{% block content %} 
+<script type="text/javascript">
+	document.getElementById('menu-treemap').classList.add('menu-href-active');
+</script>
+
+
+<script type="text/javascript">
+	function getUrlParams(url = location.search){
+	  var regex = /[?&]([^=#]+)=([^&#]*)/g, params = {}, match;
+	  while(match = regex.exec(url)) {
+	      params[match[1]] = match[2];
+	  }
+	  return params;
+	}
+	params = getUrlParams();
+
+	function formatUrlParams(new_params,params=params){
+		params = Object.assign(params,new_params)
+		let get_params  = "?";
+
+		for (const [key, value] of Object.entries(params)) {
+		  get_params = get_params+key+"="+value+"&";
+		}
+		return get_params.slice(0, -1);
+	}
+	
+</script>
+<div class="treemap-top-menu">
+	<div class="button-select-params" id="params_size">
+		<div class="button-select-params-values">
+			<div class="button-select-params-values-title">
+				Размер
+			</div>
+			<a href="?size=value_traded" id="params_size_value_traded" class="button-select-params-value">Объем торгов</a>
+			<a href="?size=market_cap" id="params_size_market_cap" class="button-select-params-value">Рыночная капитализация</a>
+		</div>
+		<div class="button-select-params-title">
+			Размер
+		</div>
+		
+	</div>
+	<div class="button-select-params" id="params_format">
+		<div class="button-select-params-values">
+			<div class="button-select-params-values-title">
+				Группировка
+			</div>
+			<a href="?format=rating" id="params_format_rating" class="button-select-params-value">Рейтинг</a>
+			<a href="?format=technology" id="params_format_technology" class="button-select-params-value">Технология</a>
+			<a href="?format=proof_type" id="params_format_proof_type" class="button-select-params-value">Тип подтверждения</a>
+		</div>
+		<div class="button-select-params-title">
+			Группировка
+		</div>
+		
+	</div>
+</div>
+
+
+<script type="text/javascript">
+	if(params["size"] === undefined){
+		params["size"] = "market_cap";
+		//$("#params_size #params_size_value_traded").addClass("button-select-params-value-active");
+	}
+	for(value in params){
+		let obj = $("#params_"+value+" #params_"+value+"_"+params[value])
+		obj.addClass("button-select-params-value-active");
+		$("#params_"+value).find('.button-select-params-title').text(obj.html());
+		
+	}
+
+	$('.button-select-params-title').on('click', function() {
+	  $(".button-select-params-title").not(this).removeClass("button-select-params-title-active");
+	  $('.button-select-params-values').not($(this).parent().find('.button-select-params-values')).hide();
+	  $(this).parent().find('.button-select-params-values').slideToggle(300);
+
+	  $(this).toggleClass("button-select-params-title-active");
+	});
+
+	prefix = "params_";
+	$(".button-select-params").each(function( index ) {
+      let href_name = this.id.slice(prefix.length);
+	  $(this).find(".button-select-params-value").each(function( index ) {
+		let href_value = this.id.slice(prefix.length+1+href_name.length);
+		this.href = formatUrlParams({ [href_name] : href_value},params);
+	  });
+	});
+</script>
+
+<div id="treemap" style="height: 500px;"></div>
+
+<script type="text/javascript">
+	
+var dom = document.getElementById("treemap");
+var myChart = echarts.init(dom);
+var option;
+
+myChart.hideLoading();
+
+$.get(
+  //'https://min-api.cryptocompare.com/data/top/totalvolfull?tsym=usd&page=0&limit_toplist=100&limit=100&api_key=8512a273e5125a4ae8c45309c8b458ff1b85ca8bbb4cb3151d04c9884a5e20a7',
+  //'https://cdn.jsdelivr.net/gh/apache/echarts-website@asf-site/examples/data/asset/data/obama_budget_proposal_2012.json',
+  "/api/treemap/{{ currency.code }}?"+window.location.search.replace( '?', ''),
+  function (dataset) {
+	myChart.hideLoading();
+	const visualMin = -100;
+	const visualMax = 100;
+	const visualMinBound = -40;
+	const visualMaxBound = 40;
+	levels_1 = [
+	    {
+	        color: ['#bf000f', '#aaa', '#00c621'],
+	        
+	       
+	        colorMappingBy: 'value',
+	        itemStyle: {
+	          gapWidth: 4,
+
+	          borderWidth: 3,
+	          borderColor: '#131722',
+	         
+	          
+	    	}
+	    }];
+	function convertData(originList) {
+
+      let min = Infinity;
+      let max = -Infinity;
+      for (let i = 0; i < originList.length; i++) {
+        let node = originList[i];
+        if (node) {
+          let value = node.value;
+          value[2] != null && value[2] < min && (min = value[2]);
+          value[2] != null && value[2] > max && (max = value[2]);
+        }
+      }
+      for (let i = 0; i < originList.length; i++) {
+        let node = originList[i];
+        if (node) {
+          let value = node.value;
+          // Scale value for visual effect
+          
+          if (value[2] != null && value[2] > 0) {
+            value[3] = echarts.number.linearMap(
+              value[2],
+              [0, max],
+              [visualMaxBound, visualMax],
+              true
+            );
+          } else if (value[2] != null && value[2] < 0) {
+            value[3] = echarts.number.linearMap(
+              value[2],
+              [min, 0],
+              [visualMin, visualMinBound],
+              true
+            );
+          } else {
+            value[3] = 0;
+          }
+          if (!isFinite(value[3])) {
+            value[3] = 0;
+          }
+          
+          if (node.children) {
+            convertData(node.children);
+
+            if(levels_1.length < 2){
+            	levels_1.unshift(
+		          {
+		            itemStyle: {
+		              borderWidth: 3,
+		              gapWidth: 4,
+		              borderColor: '#131722',
+		            },
+		            emphasis: {
+			          itemStyle: {
+			            borderColor: '#ddd'
+			          }
+	          	 	}
+	          	  });
+		          
+	        }
+          }
+        }
+      }
+    }
+    convertData(dataset);
+    
+
+	function isValidNumber(num) {
+	  return num != null && isFinite(num);
+	}
+	
+    function get_label_rich(data){
+    	img_object = {
+			name: {
+			  padding: [4,0,0,0],
+              fontSize: 18,
+              color: '#fff',
+            },
+            procent: {
+              padding: [4,0,0,0],
+              fontSize: 12,
+              lineHeight: 15,
+	   		},
+	   		price: {
+	   		  padding: [4,0,0,0],
+			  lineHeight: 15,
+              fontSize: 14,
+              fontWeight: 600
+            }
+		};
+    	for (let i = 0; i < data.length; i++) {
+    		
+			if(levels_1.length < 2){
+				img_object[data[i].id] = {
+	    			backgroundColor: {
+			            image: data[i].coin_info.icon
+			        },
+	    			height: 40,
+	    			width: 40,
+
+	    		};
+			}
+    		else{
+    			for (let j = 0; j < data[i].children.length; j++) {
+    				img_object[data[i].children[j].id] = {
+	    			backgroundColor: {
+			            image: data[i].children[j].coin_info.icon
+			        },
+	    			height: 40,
+	    			width: 40,
+
+	    		};
+    			}
+    		}
+    		
+    		
+    	}
+    	return img_object;
+    }
+	myChart.setOption(
+	  (option = {
+	    /*title: {
+	      left: 'center',
+	      text: 'Gradient Mapping',
+	      subtext: 'Growth > 0: green; Growth < 0: red; Growth = 0: grey'
+	    },*/
+	    tooltip: {
+	      formatter: function (info) {
+	        let value = info.value;
+	        let change = value[2];
+	        change = isValidNumber(change) ? change.toFixed(2) + '%' : '-';
+	        return [
+	          '<div class="tooltip-header"><img class="tooltip-title-icon" src="'+info.data.coin_info.icon+'"><div class="tooltip-title">' + info.data.coin_info.name +'</div></div>',
+	          '<div class="tooltip-block"><div class="tooltip-block-title">Цена</div>' + info.data.coin_info.price + '</div>',
+	          '<div class="tooltip-block"><div class="tooltip-block-title">'+info.data.value_name+'</div>' + info.data.coin_info.capitalization + '</div>',
+	          //'<div class="tooltip-block" style="display:block"><img class="tooltip-chart" src="'+info.data.coin_info.chart_img+'"><div class="tooltip-block-title">Последние 7 дней</div></div>',
+	          
+	        ].join('');
+
+	      },
+	      backgroundColor : "#2f3241",
+	      borderWidth: 0,
+	    },
+	    series: [
+	      {
+	        name: 'ВСЕ',
+	        type: 'treemap',
+	        top: 0,
+	        bottom: 40,
+	        left: 0,
+	        right: 0,
+	        roam : false,
+	        //width: "90%",
+	        //left : "5%",
+
+	        //nodeClick : 'link',
+	        upperLabel :{
+		    	show: true,
+		    	formatter : function (params) {
+		    		if(params.dataIndex == 0) return "";
+          			return "{up_label|"+params.name+"}";
+          			//return params.name;
+	          		
+	          		
+	          	},
+	          	//formatter: '{b}',
+	          	
+	          	rich: {
+	          		up_label : {
+	          			color: "#ffffff",
+
+	          		}
+	          		
+	          		//backgroundColor: "#fff",
+	          	}
+		    },
+	        label: {
+	          show: true,
+	          //position: "inside",
+	          //formatter: '{b}',
+
+	          formatter: function (params) {
+	          	if(params.data.children != undefined){
+	          		return null;
+	          	}
+	          	let change = params.value[2];
+	          	if(isValidNumber(change)){
+	          		if(change > 0){
+	          			change =  "+"+change.toFixed(2) + '%';
+	          		} else {
+						change =  change.toFixed(2) + '%';
+	          		}
+	          	}
+	            let arr = [
+	              '{'+params.data.id+'|}',
+	              '{name|' + params.data.name + '}',
+	              '{price|'+params.data.coin_info.price+'}',
+	              '{procent|' +
+	                //echarts.format.addCommas(params.value[0]) +
+	                 change + 
+	                '}'
+	            ];
+	            /*mode !== 1 &&
+	              arr.push(
+	                '{household|$ ' +
+	                  echarts.format.addCommas(+params.value[3].toFixed(4) * 1000) +
+	                  '} {label|per household}'
+	              );*/
+
+	            return arr.join('\n');
+	          },
+	          align: 'center',
+	          overflow : 'truncate',
+	          height: "100%",
+	          position: "",
+	          
+	          //offset: [0, -25],
+	          rich: get_label_rich(dataset),
+	        },
+	        itemStyle: {
+	          borderColor: 'black'
+	        },
+	        breadcrumb : {
+	          show: true,
+	          top: 'bottom',
+	        },
+	        visualMin: visualMin,
+	        visualMax: visualMax,
+	        visualDimension: 3,
+	        levels: levels_1,
+	        data: dataset
+	      }
+	    ]
+	  })
+	);
+	
+  }
+);
+
+
+if (option && typeof option === 'object') {
+    myChart.setOption(option);
+}
+
+myChart.on('dblclick', function (params) {
+    location.href = params.data.link;
+});
+</script>
+
+<!--{{response}}-->
+
+{% endblock %} 

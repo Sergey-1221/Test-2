@@ -1,0 +1,26 @@
+{% extends "layout/main.html" %}
+
+{% block title %}Выберите криптовалюту{% endblock %}
+
+{% block content %} 
+
+<script type="text/javascript">
+	document.getElementById('menu-сharts').classList.add('menu-href-active');
+</script>
+<div class="charts">
+  <h1>Выберите криптовалюту</h1>
+  {% for coin in coins %}
+    <a href="/chart/{{ coin.name }}/{{ currency.code }}">
+      <div class="coin-block">
+        <img src="https://www.cryptocompare.com/{{ coin.icon }}">
+        <div class="coin-block-text">
+          {{ coin.FullName }}
+          <div class="coin-block-name">{{ coin.name}}</div>
+        </div>
+        
+      </div>
+    <a>
+  {% endfor %}
+</div>
+
+{% endblock %} 

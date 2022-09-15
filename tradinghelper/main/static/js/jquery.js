@@ -1,0 +1,1 @@
+import $ from "/static/js/jquery.js";

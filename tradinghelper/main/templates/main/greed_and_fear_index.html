@@ -1,0 +1,326 @@
+{% extends "layout/main.html" %}
+
+{% load static %} 
+
+{% block title %}Индекс страха и жадности биткоина{% endblock %}
+
+{% block content %}
+<script type="text/javascript">
+	document.getElementById('menu-greed-and-fear').classList.add('menu-href-active');
+</script>
+<div class="coin-block-main">
+	<div class="coin-block-vertical">
+		<h2 class="coin-block-h2">Индекс страха и жадности</h2>
+		<div class="coin-block-1" id="greed-and-fear-value"></div>
+	</div>
+
+	<div class="coin-block-1 greed-and-fear-chart">
+		<div id="greed-and-fear-chart"></div>
+		<div class="greed-and-fear-chart-buttons">
+			<div onclick="GreedAndFear_data_change(this,7)" class="greed-and-fear-chart-button">
+				7 д
+			</div>
+			<div onclick="GreedAndFear_data_change(this,30)" class="greed-and-fear-chart-button greed-and-fear-chart-button-active">
+				1 мес
+			</div>
+			<div onclick="GreedAndFear_data_change(this,90)" class="greed-and-fear-chart-button">
+				3 мес
+			</div>
+			<div onclick="GreedAndFear_data_change(this,365)" class="greed-and-fear-chart-button">
+				1 год
+			</div>
+			<div onclick="GreedAndFear_data_change(this,10000)" class="greed-and-fear-chart-button">
+				Все
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="greed-and-fear-description">
+	<div class="coin-text">
+		<h1>Крипто индекс страха и жадности</h1>
+		<div class="coin-block-text">
+			<h2>Зачем измерять уровень страха и жадности?</h2>
+			<p>Поведение игроков крипто рынка очень эмоционально. Люди становятся жадными, когда рынок растет, и это приводит к формированию FOMO (синдром упущенной выгоды). Кроме того, люди часто продают свои монеты, иррационально реагируя на красные цифры курсов валют. Разработчики Индекса страха и жадности пытаются избавить пользователей от эмоциональных перенапряжений. Есть два базовых допущения:</p>
+			<ul>
+				<li><span class="color-sell">Чрезвычайный страх</span> может быть признаком того, что инвесторы слишком обеспокоены. Это может быть хорошая возможность для <span class="color-buy">покупки актива</span>.</li>
+				<li>Когда инвесторы становятся <span class="color-buy">чрезвычайно жадными</span>, это означает, что на рынке <span class="color-sell">необходима коррекция</span>.</li>
+			</ul>
+			
+			
+			<p>Благодаря Индексу страха и жадности анализируется текущее настроение рынка, которое представляется в виде простого числа от 0 до 100. 0 означает «Чрезвычайный страх», а 100 означает «Чрезвычайную жадность».</p>
+		</div>
+		<div class="coin-block-text">
+			<h2>Данные для определения Индекса страха и жадности</h2>
+			<p>Для определения Индекса страха и жадности используется шесть параметров. Каждый из них оценивается таким же образом, как и в предыдущий день, чтобы наглядно продемонстрировать изменение настроений на крипто рынке.
+			Этот индекс предназначен только для Биткоина (в ближайшее время будут разработаны отдельные индексы для крупных альткоинов), и определяющее значение играет волатильность цены. Список всех факторов, которые влияют на показатель этого индекса:</p>
+
+			<h3>Волатильность (25%)</h3>
+			<p>Измеряется текущая волатильность и максимальные просадки BTC, производится сравнение с соответствующими средними значениями за последние 30 и 90 дней. Необычный всплеск волатильности – это признак «пугающего» рынка.</p>
+
+			<h3>Импульс / Объем рынка (25%)</h3>
+			<p>Измеряется текущий объем и рыночный импульс (опять же по сравнению со средними показателями за последние 30/90 дней), затем эти два значения соотносятся. Как правило, если ежедневно на фоне позитивных условий на рынке фиксируются высокие объемы покупок, это означает, что игроки рынка проявляют излишнюю жадность (ведут себя слишком по-бычьи).</p>
+
+			<h3>Социальные сети (15%)</h3>
+			<p>На данный момент этот параметр определяется анализом в Twitter. В этой соцсети собираются и подсчитываются сообщения с различными хэштегами по каждой монете; затем анализируется, насколько быстро и активно пользователи реагировали на эти сообщения за определенные периоды времени. Необычно активная реакция приводит к росту интереса общественности к монете и, на взгляд разработчиков, отражает жадность игроков рынка.</p>
+
+			<h3>Опросы (15%) (В настоящее время приостановлены)</h3>
+			<p>Совместно с платформой strawpoll.com разработчики Индекса жадности и страха проводят еженедельные опросы и узнают, как люди воспринимают текущую ситуацию на рынке. В каждом опросе принимает участие 2000-3000 человек, и таким образом формируется представление о настроении крипто инвесторов.</p>
+
+			<h3>Доминирование (10%)</h3>
+			<p>Доминирование монеты – это что-то похожее на долю монеты в общей рыночной капитализации. В случае с Биткоином: разработчики считают, что рост доминирования Биткоина вызван страхом чрезвычайно спекулятивных инвестиций в альткоины, поэтому Биткоин становится все более безопасным инструментом сохранения капитала. И наоборот, когда доминирование BTC уменьшается, это значит, что люди проявляют излишнюю жадность, вкладывая деньги в более рискованные альткоины, мечтая о возможности поучаствовать в новом крупномасштабном бычьем ралли. Стоит отметить, что рост доминирования любого альткоина, наоборот, вызывает больший интерес к монете и может привести к чрезвычайно бычьему / жадному поведению на рынке этой конкретной монеты.</p>
+
+			<h3>Тренды (10%)</h3>
+			<p>Анализируются данные Google Trends по различным поисковым запросам, связанным с Биткоином. Особенное внимание уделяется изменению объемов поисковых запросов, а также рекомендуемым и популярным запросам на данный момент. Например, проверка слова «Биткоин» в Google Trends всего лишь отразит популярность запроса (объем поисковых запросов). Но, например, на данный момент (29.05.2018) количество запросов «манипулирование ценой Биткоина» в смежном разделе увеличилось на 1,550%. Это явный признак страха на рынке, и этот факт отражается в показателе индекса.</p>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	//gauge
+	var GreedAndFear_value = $.ajax({
+		type: "GET",
+		url: "/api/fear_and_greed_index/",
+		async: false
+	}).responseText;
+
+	GreedAndFear_value = JSON.parse(GreedAndFear_value)[0];
+	var GreedAndFear_div = document.getElementById('greed-and-fear-value');
+	var GreedAndFear_gauge = echarts.init(GreedAndFear_div, null, {
+		renderer: 'canvas',
+		useDirtyRect: false,
+		width : 400,
+		height: 400
+	});
+
+	GreedAndFear_gauge_option = {
+	  series: [
+	    {
+	      type: 'gauge',
+	      startAngle: 180,
+	      endAngle: 0,
+	      min: 0,
+	      max: 1,
+	      splitNumber: 8,
+	      axisLine: {
+	        lineStyle: {
+	          width: 6,
+	          color: [
+	            [0.25, '#fe1500'],
+	            [0.45, '#fe8100'],
+	            [0.55, '#e4c702'],
+	            [0.75, '#7ff311'],
+	            [1, '#3e9f01']
+	          ]
+	        }
+	      },
+	      pointer: {
+	        icon: 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z',
+	        length: '12%',
+	        width: 20,
+	        offsetCenter: [0, '-60%'],
+	        itemStyle: {
+	          color: 'auto'
+	        }
+	      },
+	      axisTick: {
+	        length: 12,
+	        lineStyle: {
+	          color: 'auto',
+	          width: 2
+	        }
+	      },
+	      splitLine: {
+	        length: 20,
+	        lineStyle: {
+	          color: 'auto',
+	          width: 5
+	        }
+	      },
+	      axisLabel: {
+	        color: '#d1d4dc',
+	        fontSize: 20,
+	        distance: -60,
+	        formatter: function (value) {
+	          if (value === 1) {
+	            return '{greed|Жадность}';
+	          } else if (value === 0.5) {
+	            return '{neutral|Нейтрально}';
+	          } else if (value === 0) {
+	            return '{fear|Страх}';
+	          }
+	          return '';
+	        },
+
+	        rich: {
+		        greed: {
+		            padding: [45, 5, 0, 0],
+		            fontSize: 20,
+		        },
+		        neutral: {
+		        	fontSize: 20,
+		        },
+		        fear: {
+		        	padding: [45, 0, 0, 15],
+		        	fontSize: 20,
+		        }
+
+		  	}
+	      },
+
+	      title: {
+	        offsetCenter: [0, '-20%'],
+	        fontSize: 30
+	      },
+	      detail: {
+	        fontSize: 50,
+	        offsetCenter: [0, '0%'],
+	        valueAnimation: true,
+	        formatter: function (value) {
+	          return Math.round(value * 100);
+	        },
+	        color: 'auto'
+	      },
+	      data: [
+	        {
+	          value: GreedAndFear_value.value / 100,
+	          //name: 'Grade Rating'
+	        }
+	      ]
+	    }
+	  ]
+	};
+
+	if (GreedAndFear_gauge_option && typeof GreedAndFear_gauge_option === 'object') {
+	  GreedAndFear_gauge.setOption(GreedAndFear_gauge_option);
+	}
+
+	window.addEventListener('resize', GreedAndFear_gauge.resize);
+
+
+	//chart
+	function GreedAndFear_data(value){
+		data = $.ajax({
+			type: "GET",
+			url: "/api/fear_and_greed_index/"+value,
+			async: false
+		}).responseText;
+		data = JSON.parse(data);
+
+		data_format = []
+		data.forEach(function(item, i, arr) {
+			value = item.value;
+			time = new Date(item.timestamp * 1000);
+
+			data_format.push({
+				"name": time.toString(),
+				"value" : [[time.getFullYear(), time.getMonth() + 1, time.getDate()].join('/'),value]
+			});
+		});
+		return data_format;
+	}
+
+	GreedAndFearData = GreedAndFear_data(30);
+
+	echarts.registerLocale(locale="RU", localeCfg=langRU);
+	var GreedAndFear_chart_div = document.getElementById('greed-and-fear-chart');
+	var GreedAndFear_chart = echarts.init(GreedAndFear_chart_div,null, {
+		height: 400,
+		locale: 'RU'
+	});
+
+
+
+	GreedAndFear_chart_option = {
+		xAxis: {
+			type: 'time',
+			boundaryGap: ['1%', '1%'],
+			axisLine: {
+				show : true
+			},
+			splitLine: {
+				show: false
+			},
+			textStyle : {
+				borderWidth : "100%"
+			}
+
+		},
+		textStyle : {
+			color : "#d1d4dc"
+		},
+		yAxis: {
+			type: 'value',
+			max : 100,
+			axisLine: {
+				show : true
+			},
+			splitLine: {
+				show: false
+			}
+		},
+		tooltip: {
+		    trigger: 'axis',
+		    formatter: function (params) {
+		      params = params[0];
+		      var date = new Date(params.name);
+		      return (
+		      	'<div class="chart-tooltip-value">'+params.value[1] + '</div>'+
+		        '<div class="chart-tooltip-date">'+date.getDate() +
+		        '.' +
+		        (date.getMonth() + 1) +
+		        '.' +
+		        date.getFullYear()+'<div>'
+
+		      );
+		    },
+		    textStyle: {
+		    	color: "#FFF",
+		    },
+		    axisPointer: {
+		      animation: false,
+		      snap: false,
+		      lineStyle: {
+		      	color: '#434651',
+		      	type: 'solid'
+		      }
+		    },
+		    borderColor: '#434651',
+		    backgroundColor: '#1e222d',
+		    borderWidth: 1,
+
+
+		},
+		dataZoom: [
+	        {
+	            id: 'dataZoomX',
+	            type: 'inside',
+	            xAxisIndex: [0],
+	            filterMode: 'filter',
+	            minValueSpan: 3600 * 24 * 1000 * 5//min size5 days
+	        },
+
+	    ],
+		series: [
+			{
+			  data: GreedAndFearData,
+			  type: 'line',
+			  lineStyle : {
+			  	color : '#2962ff'
+			  },
+			  symbol: 'none',
+			  showSymbol: false
+			}
+		]
+	};
+	function GreedAndFear_data_change(el,value){
+		$('.greed-and-fear-chart-button').removeClass('greed-and-fear-chart-button-active');
+		$(el).addClass('greed-and-fear-chart-button-active');
+		data = {series: [{data: GreedAndFear_data(value)}]};
+		GreedAndFear_chart.setOption(data);
+
+	}
+
+	GreedAndFear_chart.setOption(GreedAndFear_chart_option);
+
+</script>
+{% endblock %}

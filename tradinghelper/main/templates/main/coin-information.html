@@ -1,0 +1,214 @@
+{% extends "layout/coin.html" %}
+
+{% load static %} 
+
+{% block title %}{{ coin.name }}{% endblock %}
+
+{% block content-coin %} 
+<script type="text/javascript">
+   $( ".coin-header-button-information" ).addClass( "coin-header-button-active" );
+</script>
+<div class="coin-сharts">
+	<div class="coin-сharts-header">
+		<div class="coin-сharts-label">
+			График 
+		</div>
+		<!--<ul class="select-button">
+			<li class="select-button-choose select-button-choose-active"> TradingView
+			<li class="select-button-choose"> Main Chart
+		</ul>-->
+	</div>
+	
+	<div class="coin-сhart">
+		  <!-- TradingView Widget BEGIN -->
+		<div class="tradingview-widget-container">
+		  <div id="tradingview_a500e"></div>
+		  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+		  <script type="text/javascript">
+		  new TradingView.widget(
+		  {
+		  "width": 900,
+		  "height": 450,
+		  "symbol": "{{ symbol }}",
+		  "interval": "D",
+		  "timezone": "Etc/UTC",
+		  "theme": "dark",
+		  "style": "3",
+		  "locale": "ru",
+		  "toolbar_bg": "#f1f3f6",
+		  "enable_publishing": false,
+		  "withdateranges": true,
+		  "hide_side_toolbar": false,
+		  "save_image": false,
+		  "show_popup_button": true,
+		  "popup_width": "1000",
+		  "popup_height": "650",
+		  "container_id": "tradingview_a500e"
+		}
+		  );
+		  </script>
+		</div>
+		<!-- TradingView Widget END -->
+	</div>
+	<!--<div id="a1223d">
+	
+	</div>
+
+	<script type="text/javascript">
+		
+
+		chart_2 = new Chart_template("a1223d",400);
+		chart_2.candlestick();
+		chart_2.data_candlestick("BTC","USD",100);
+		
+		chart_2.create();
+	</script>-->
+</div>
+<div class="coin-blocks-info">
+	<div class="coin-blocks-info-header">
+		{{ coin.name }}
+	</div>
+	<div class="coin-block-info">
+		<div class="coin-block-info-title">
+			Цена
+		</div>
+		<table>
+			<tbody>
+				<tr class="coin-block-info-line">
+					<th>Цена</th>
+					<td>{{coin_price.price}}</td>
+				</tr>
+				<tr class="coin-block-info-line">
+					<th>Капитализация</th>
+					<td>
+						{{coin_price.capitalization}}
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div class="coin-block-info">
+		<div class="coin-block-info-title">
+			Данные за 24ч
+		</div>
+		<table>
+			<tbody>
+				<tr class="coin-block-info-line">
+					<th>Изменение за 24ч</th>
+					<td>
+						{{coin_price.change_24h}}
+						<div class="change-24h-{{ coin_price.change_24h_type }}">{{ coin_price.change_procent_24h }}%</div>
+					</td>
+				</tr>
+				<tr class="coin-block-info-line">
+					<th>Объём торгов</th>
+					<td>
+						{{coin_price.volume_24h}}
+					</td>
+				</tr>
+				<tr class="coin-block-info-line">
+					<th>Открытие</th>
+					<td>
+						{{coin_price.open_24h}}
+					</td>
+				</tr>
+				<tr class="coin-block-info-line">
+					<th>Большее 24ч</th>
+					<td>
+						{{coin_price.high_24h}}
+					</td>
+				</tr>
+				<tr class="coin-block-info-line">
+					<th>Меньшее 24ч</th>
+					<td>
+						{{coin_price.low_24h}}
+					</td>
+				</tr>
+				
+				
+			</tbody>
+		</table>
+	</div>
+	<div class="coin-block-info">
+		<div class="coin-block-info-title">
+			Блокчейн
+		</div>
+		<table>
+			<tbody>
+				{% if coin_info.ProofType != "N/A" %}
+					<tr class="coin-block-info-line">
+						<th>Тип</th>
+						<td>
+							{{coin_info.ProofType}}
+						</td>
+					</tr>
+				{% endif %}
+				{% if coin_info.Algorithm != "N/A" %}
+				<tr class="coin-block-info-line">
+					<th>Алгоритм</th>
+					<td>
+						{{coin_info.Algorithm}}
+					</td>
+				</tr>
+				{% endif %}
+				<tr class="coin-block-info-line">
+					<th>Существует монет</th>
+					<td>
+						{{coin_info.TotalCoinsMined}}
+					</td>
+				</tr>
+				{% if coin_info.MaxSupply != -1 %}
+				<tr class="coin-block-info-line">
+					<th>Максимум монет</th>
+					<td>
+						{{coin_info.MaxSupply}}
+					</td>
+				</tr>
+				{% endif %}
+				{% if coin_info.NetHashesPerSecond != 0 %}
+				<tr class="coin-block-info-line">
+					<th>Мощность сети H/s</th>
+					<td>
+						{{coin_info.NetHashesPerSecond}}
+					</td>
+				</tr>
+				{% endif %}
+				{% if coin_info.BlockNumber != 0 %}
+				<tr class="coin-block-info-line">
+					<th>Номер блока</th>
+					<td>
+						{{coin_info.BlockNumber}}
+					</td>
+				</tr>
+				{% endif %}
+				{% if coin_info.BlockTime != 0 %}
+				<tr class="coin-block-info-line">
+					<th>Время блока</th>
+					<td>
+						{{coin_info.BlockTime}}
+					</td>
+				</tr>
+				{% endif %}
+				{% if coin_info.BlockReward != 0 %}
+				<tr class="coin-block-info-line">
+					<th>Награждение за блок</th>
+					<td>
+						{{coin_info.BlockReward}}
+					</td>
+				</tr>
+				{% endif %}
+				<tr class="coin-block-info-line">
+					<th>Дата создания</th>
+					<td>
+						{{coin_info.AssetLaunchDate}}
+					</td>
+				</tr>
+				
+				
+				
+			</tbody>
+		</table>
+	</div>
+
+</div>
+{% endblock %}

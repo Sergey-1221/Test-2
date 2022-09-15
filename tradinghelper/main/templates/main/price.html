@@ -1,0 +1,32 @@
+{% extends "layout/main.html" %}
+
+{% load static %} 
+
+{% block title %}Цены криптовалют{% endblock %}
+
+{% block content %} 
+
+<script type="text/javascript">
+	document.getElementById('menu-price').classList.add('menu-href-active');
+</script>
+
+<div class="price">
+  <table border="1">
+   <!-- <caption>Таблица </caption> -->
+   <tr class="top-table">
+
+    <th>Монета</th>
+    <th>Цена</th>
+    <th>Общий объем</th>
+    <th>Капитализация</th>
+    <th>Последние 7 дней</th>
+    <th>24 Ч</th>
+   </tr>
+    {% for coin in coins %}
+      <tr><td class="price-name"><!--<div id="do-coin"><a href="/chart/{{ coin.name }}/{{ currency.code }}"><img src="{% static 'img/bar-chart.png' %}">График</a></div>--><a href="/coin/{{ coin.name }}/{{ currency.code }}" class="price-name-a"><img class="price-icon" src="https://www.cryptocompare.com/{{ coin.icon }}"> <div class="price-name-text">{{ coin.FullName }}</div></a></td><td>{{ coin.price }}</td><td>{{ coin.volume_24h }}</td><td>{{ coin.capitalization }}</td><td><img class="coin-block-chart" src="{{ coin.chart_img }}"></td><td><div class="change-24h-{{ coin.change_24h_type }}">{{ coin.change_procent_24h }} %</div></td></tr>
+    
+    {% endfor %}
+  </table>
+</div>
+
+{% endblock %} 

@@ -1,0 +1,25 @@
+{% extends "layout/coin.html" %}
+
+{% load static %} 
+
+{% block title %}{{ coin.name }}{% endblock %}
+
+{% block content-coin %} 
+<script type="text/javascript">
+   $( ".coin-header-button-news" ).addClass( "coin-header-button-active" );
+</script>
+<div class="coin-news-block">
+	{% for item in news %}
+		<a href="{{item.url}}" target="_blank"><div class="coin-news-item">
+			<h3 class="coin-news-item-title">{{item.title}}</h3>
+			<div class="coin-news-item-description">{{item.description}}</div>
+			<div class="coin-news-item-footer">
+				<div class="coin-news-item-date">{{item.date}}</div>
+				<div class="coin-news-item-url-name">{{item.url_name}}</div>
+			</div>
+		</div></a>
+
+	{% endfor %}
+</div>
+
+{% endblock %}
